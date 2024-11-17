@@ -1,0 +1,3 @@
+/home/yousef/Documents/CyndaQuil/build/CMakeFiles/ember.dir
+/home/yousef/Documents/CyndaQuil/build/CMakeFiles/edit_cache.dir
+/home/yousef/Documents/CyndaQuil/build/CMakeFiles/rebuild_cache.dir
