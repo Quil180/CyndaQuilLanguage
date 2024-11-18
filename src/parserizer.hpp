@@ -15,10 +15,10 @@ struct nodeTermIdent {
 
 struct nodeExpr;
 
-/*struct nodeBinExprMul {*/
-/*  nodeExpr *left;*/
-/*  nodeExpr *right;*/
-/*};*/
+struct nodeBinExprMul {
+  nodeExpr *left;
+  nodeExpr *right;
+};
 
 struct nodeBinExprAdd {
   nodeExpr *left;
@@ -26,7 +26,7 @@ struct nodeBinExprAdd {
 };
 
 struct nodeBinExpr {
-  nodeBinExprAdd *add;
+  std::variant<nodeBinExprAdd *, nodeBinExprMul *> variant;
 };
 
 struct nodeTerm {
@@ -80,35 +80,58 @@ public:
     }
   }
 
-  std::optional<nodeExpr *> parse_expression() {
-    if (auto term = parse_term()) {
-      if (try_consume(tokenType::plus).has_value()) {
-        // we have a binary expression.
-        auto bin_expr = mem_allocator.alloc<nodeBinExpr>();
-        // we have a plus.
-        auto bin_expr_add = mem_allocator.alloc<nodeBinExprAdd>();
-        auto left_expr = mem_allocator.alloc<nodeExpr>();
-        left_expr->variant = term.value();
-        bin_expr_add->left = left_expr;
-        if (auto right = parse_expression()) {
-          bin_expr_add->right = right.value();
-          bin_expr->add = bin_expr_add;
-          auto expr = mem_allocator.alloc<nodeExpr>();
-          expr->variant = bin_expr;
-          return expr;
-        } else {
-          std::cerr << "Expected valid right to binary expression..."
-                    << std::endl;
-          exit(EXIT_FAILURE);
-        }
-      } else {
-        auto expr = mem_allocator.alloc<nodeExpr>();
-        expr->variant = term.value();
-        return expr;
-      }
-    } else {
+  std::optional<nodeExpr *> parse_expression(int min_precedence = 0) {
+    std::optional<nodeTerm *> term_left = parse_term();
+    if (!term_left.has_value()) {
       return {};
     }
+
+    auto expr_left = mem_allocator.alloc<nodeExpr>();
+    expr_left->variant = term_left.value();
+
+    // we have a valid term...
+    while (true) {
+      // checking if we have a binary operator.
+      std::optional<Token> current_token = peek();
+      std::optional<int> precedence;
+      if (current_token.has_value()) {
+        precedence = binary_precedence(current_token->type);
+        if (!precedence.has_value() || precedence < min_precedence) {
+          break;
+        }
+      } else {
+        break;
+      }
+
+      Token oper = consume();
+      int next_min_prec = precedence.value() + 1;
+      // now we compute the right side.
+      auto expr_right = parse_expression(next_min_prec);
+
+      if (!expr_right.has_value()) {
+        std::cerr << "Unable to parse expression..." << std::endl;
+        exit(EXIT_FAILURE);
+      }
+
+      // now we need the left.
+      auto expr = mem_allocator.alloc<nodeBinExpr>();
+      auto new_expr_left = mem_allocator.alloc<nodeExpr>();
+      if (oper.type == tokenType::plus) {
+        auto add = mem_allocator.alloc<nodeBinExprAdd>();
+        new_expr_left->variant = expr_left->variant;
+        add->left = new_expr_left;
+        add->right = expr_right.value();
+        expr->variant = add;
+      } else if (oper.type == tokenType::star) {
+        auto mul = mem_allocator.alloc<nodeBinExprMul>();
+        new_expr_left->variant = expr_left->variant;
+        mul->left = new_expr_left;
+        mul->right = expr_right.value();
+        expr->variant = mul;
+      }
+      expr_left->variant = expr;
+    }
+    return expr_left;
   }
 
   std::optional<nodeStmt *> parse_statement() {
@@ -122,7 +145,8 @@ public:
         exit(EXIT_FAILURE);
       }
 
-      try_consume(tokenType::end_line, "Expected '~' at end of run statement...");
+      try_consume(tokenType::end_line,
+                  "Expected '~' at end of run statement...");
 
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = stmt_run;

@@ -16,8 +16,20 @@ enum class tokenType {
   ident,
   _catch,
   as,
-  plus
+  plus,
+  star
 };
+
+std::optional<int> binary_precedence(tokenType type) {
+  switch (type) {
+  case tokenType::plus:
+    return 0;
+  case tokenType::star:
+    return 1;
+  default:
+    return {};
+  }
+}
 
 struct Token {
   tokenType type;
@@ -84,6 +96,10 @@ public:
       } else if (peek().value() == '+') {
         consume();
         tokens.push_back({.type = tokenType::plus});
+        continue;
+      } else if (peek().value() == '*') {
+        consume();
+        tokens.push_back({.type = tokenType::star});
         continue;
       } else if (std::isspace(peek().value())) {
         consume();

@@ -1,3 +1,3 @@
-catch 1 + 1 + 1 as x~
-catch x as y~
-run y + x~
+catch 1 + 2 * 3 as x~
+catch x + 5 as y~
+run y~

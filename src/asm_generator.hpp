@@ -40,20 +40,39 @@ public:
     std::visit(visitor, term->variant);
   }
 
-  void generateExpr(const nodeExpr *expr) {
-    struct ExprVisitor {
+  void generateBinExpr(const nodeBinExpr *bin_expr) {
+    struct BinExprVisitor {
       ASMGenerator *gen;
 
-      void operator()(const nodeTerm *term) const {
-        gen->generateTerm(term);
-      }
-      void operator()(const nodeBinExpr *bin_expr) {
-        gen->generateExpr(bin_expr->add->left);
-        gen->generateExpr(bin_expr->add->right);
+      void operator()(const nodeBinExprAdd *add) const {
+        gen->generateExpr(add->left);
+        gen->generateExpr(add->right);
         gen->pop("rax");
         gen->pop("rbx");
         gen->mem_output << "  add rax, rbx\n";
         gen->push("rax");
+      }
+      void operator()(const nodeBinExprMul *mul) const {
+        gen->generateExpr(mul->left);
+        gen->generateExpr(mul->right);
+        gen->pop("rax");
+        gen->pop("rbx");
+        gen->mem_output << "  mul rbx\n";
+        gen->push("rax");
+      }
+    };
+
+    BinExprVisitor visitor{.gen = this};
+    std::visit(visitor, bin_expr->variant);
+  }
+
+  void generateExpr(const nodeExpr *expr) {
+    struct ExprVisitor {
+      ASMGenerator *gen;
+
+      void operator()(const nodeTerm *term) const { gen->generateTerm(term); }
+      void operator()(const nodeBinExpr *bin_expr) const {
+        gen->generateBinExpr(bin_expr);
       }
     };
 
