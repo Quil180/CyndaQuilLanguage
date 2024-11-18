@@ -24,17 +24,17 @@ int main(int argc, char *argv[]) {
 
   // 
   Parser parser(std::move(tokens));
-  std::optional<nodeRun> parsedTree = parser.parse();
+  std::optional<nodeProgram> program = parser.parse_program();
 
-  if (!parsedTree.has_value()) {
-    std::cerr << "No run statement found..." << std::endl;
+  if (!program.has_value()) {
+    std::cerr << "Invalid program..." << std::endl;
     exit(EXIT_FAILURE);
   }
 
-  ASMGenerator generator(parsedTree.value());
+  ASMGenerator generator(program.value());
 
   std::fstream file("ember.asm", std::ios::out);
-  file << generator.generate_asm();
+  file << generator.generateProgram();
   file.close();
 
   // linking the assembly

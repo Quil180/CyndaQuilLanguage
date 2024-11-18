@@ -7,7 +7,16 @@
 #include <string>
 #include <vector>
 
-enum class tokenType { run, int_lit, end_line };
+enum class tokenType {
+  run,
+  int_lit,
+  end_line,
+  open_paren,
+  close_paren,
+  ident,
+  _catch,
+  as
+};
 
 struct Token {
   tokenType type;
@@ -23,12 +32,12 @@ public:
     std::vector<Token> tokens;
     std::string buffer;
 
-    while (peak().has_value()) { // while peak has a value returned
+    while (peek().has_value()) { // while peak has a value returned
       // the next index is guaranteed to exist.
-      if (std::isalpha(peak().value())) {
+      if (std::isalpha(peek().value())) {
         // push the at the current index into the buffer.
         buffer.push_back(consume());
-        while (peak().has_value() && std::isalnum(peak().value())) {
+        while (peek().has_value() && std::isalnum(peek().value())) {
           // keep on consuming until we finish "eating" all the numbers/letters.
           buffer.push_back(consume());
         }
@@ -38,24 +47,40 @@ public:
           tokens.push_back({.type = tokenType::run});
           buffer.clear();
           continue;
+        } else if (buffer == "catch") {
+          tokens.push_back({.type = tokenType::_catch});
+          buffer.clear();
+          continue;
+        } else if (buffer == "as") {
+          tokens.push_back({.type = tokenType::as});
+          buffer.clear();
+          continue;
         } else {
-          // no valid special keyword was found
-          std::cerr << "No special keyword was found..." << std::endl;
-          exit(EXIT_FAILURE);
+          // no valid special keyword was found therefore its an identifier.
+          tokens.push_back({.type = tokenType::ident, .value = buffer});
+          buffer.clear();
+          continue;
         }
-      } else if (std::isdigit(peak().value())) {
+      } else if (std::isdigit(peek().value())) {
         buffer.push_back(consume());
-        while (peak().has_value() && std::isdigit(peak().value())) {
+        while (peek().has_value() && std::isdigit(peek().value())) {
           buffer.push_back(consume());
         }
         tokens.push_back({.type = tokenType::int_lit, .value = buffer});
         buffer.clear();
         continue;
-      } else if (peak().value() == '~') {
+      } else if (peek().value() == '(') {
+        consume();
+        tokens.push_back({.type = tokenType::open_paren});
+      } else if (peek().value() == ')') {
+        consume();
+        continue;
+        tokens.push_back({.type = tokenType::close_paren});
+      } else if (peek().value() == '~') {
         consume();
         tokens.push_back({.type = tokenType::end_line});
         continue;
-      } else if (std::isspace(peak().value())) {
+      } else if (std::isspace(peek().value())) {
         consume();
         continue;
       } else {
@@ -77,11 +102,12 @@ private:
   // nodiscard will tell us if there is no return value (aka something went
   // wrong.)
   [[nodiscard]] inline std::optional<char>
-  peak(int ahead = 1) const { // const as it shouldnt edit anything.
-    if (mem_index + ahead > mem_source.length()) {
+  peek(int offset = 0) const { // const as it shouldnt edit anything.
+    if (mem_index + offset >= mem_source.length()) {
       return {};
     } else {
-      return mem_source.at(mem_index); // return the character at that index.
+      return mem_source.at(mem_index +
+                           offset); // return the character at that index.
     }
   }
 
