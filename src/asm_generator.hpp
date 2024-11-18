@@ -12,20 +12,20 @@ public:
 
   void generateTerm(const nodeTerm *term) {
     struct TermVisitor {
-      ASMGenerator *gen;
+      ASMGenerator &gen;
 
       void operator()(const nodeTermIntLit *term_int_lit) const {
-        gen->mem_output << "  mov rax, " << term_int_lit->int_lit.value.value()
+        gen.mem_output << "  mov rax, " << term_int_lit->int_lit.value.value()
                         << "\n";
-        gen->push("rax");
+        gen.push("rax");
       }
       void operator()(const nodeTermIdent *term_ident) const {
         auto iterator = std::find_if(
-            gen->mem_vars.cbegin(), gen->mem_vars.cend(),
+            gen.mem_vars.cbegin(), gen.mem_vars.cend(),
             [&](const Variable &var) {
               return var.name == term_ident->identifier.value.value();
             });
-        if (iterator == gen->mem_vars.cend()) {
+        if (iterator == gen.mem_vars.cend()) {
           std::cerr << "Undeclared identifier "
                     << term_ident->identifier.value.value() << " found...\n"
                     << std::endl;
@@ -33,73 +33,73 @@ public:
         }
         std::stringstream offset;
         offset << "QWORD [rsp + "
-               << (gen->mem_stack_size - (*iterator).stack_local - 1) * 8
+               << (gen.mem_stack_size - (*iterator).stack_local - 1) * 8
                << "]";
         // we know we have an already declared variable identifier.
-        gen->push(offset.str());
+        gen.push(offset.str());
       }
       void operator()(const nodeTermParen *term_paren) const {
-        gen->generateExpr(term_paren->expr);
+        gen.generateExpr(term_paren->expr);
       }
     };
 
-    TermVisitor visitor({.gen = this});
+    TermVisitor visitor({.gen = *this});
     std::visit(visitor, term->variant);
   }
 
   void generateBinExpr(const nodeBinExpr *bin_expr) {
     struct BinExprVisitor {
-      ASMGenerator *gen;
+      ASMGenerator &gen;
 
       void operator()(const nodeBinExprAdd *add) const {
-        gen->generateExpr(add->right);
-        gen->generateExpr(add->left);
-        gen->pop("rax");
-        gen->pop("rbx");
-        gen->mem_output << "  add rax, rbx\n";
-        gen->push("rax");
+        gen.generateExpr(add->right);
+        gen.generateExpr(add->left);
+        gen.pop("rax");
+        gen.pop("rbx");
+        gen.mem_output << "  add rax, rbx\n";
+        gen.push("rax");
       }
       void operator()(const nodeBinExprSub *sub) const {
-        gen->generateExpr(sub->right);
-        gen->generateExpr(sub->left);
-        gen->pop("rax");
-        gen->pop("rbx");
-        gen->mem_output << "  sub rax, rbx\n";
-        gen->push("rax");
+        gen.generateExpr(sub->right);
+        gen.generateExpr(sub->left);
+        gen.pop("rax");
+        gen.pop("rbx");
+        gen.mem_output << "  sub rax, rbx\n";
+        gen.push("rax");
       }
       void operator()(const nodeBinExprMul *mul) const {
-        gen->generateExpr(mul->right);
-        gen->generateExpr(mul->left);
-        gen->pop("rax");
-        gen->pop("rbx");
-        gen->mem_output << "  mul rbx\n";
-        gen->push("rax");
+        gen.generateExpr(mul->right);
+        gen.generateExpr(mul->left);
+        gen.pop("rax");
+        gen.pop("rbx");
+        gen.mem_output << "  mul rbx\n";
+        gen.push("rax");
       }
       void operator()(const nodeBinExprDiv *div) const {
-        gen->generateExpr(div->right);
-        gen->generateExpr(div->left);
-        gen->pop("rax");
-        gen->pop("rbx");
-        gen->mem_output << "  div rbx\n";
-        gen->push("rax");
+        gen.generateExpr(div->right);
+        gen.generateExpr(div->left);
+        gen.pop("rax");
+        gen.pop("rbx");
+        gen.mem_output << "  div rbx\n";
+        gen.push("rax");
       }
     };
 
-    BinExprVisitor visitor{.gen = this};
+    BinExprVisitor visitor{.gen = *this};
     std::visit(visitor, bin_expr->variant);
   }
 
   void generateExpr(const nodeExpr *expr) {
     struct ExprVisitor {
-      ASMGenerator *gen;
+      ASMGenerator &gen;
 
-      void operator()(const nodeTerm *term) const { gen->generateTerm(term); }
+      void operator()(const nodeTerm *term) const { gen.generateTerm(term); }
       void operator()(const nodeBinExpr *bin_expr) const {
-        gen->generateBinExpr(bin_expr);
+        gen.generateBinExpr(bin_expr);
       }
     };
 
-    ExprVisitor visitor({.gen = this});
+    ExprVisitor visitor({.gen = *this});
     std::visit(visitor, expr->variant);
   }
 
@@ -113,47 +113,47 @@ public:
 
   void generateSttmt(const nodeStmt *stmt) {
     struct StmtVisitor {
-      ASMGenerator *gen;
+      ASMGenerator &gen;
 
       void operator()(const nodeStmtRun *stmt_run) const {
-        gen->generateExpr(stmt_run->expression);
+        gen.generateExpr(stmt_run->expression);
 
-        gen->mem_output << "  mov rax, 60\n";
-        gen->pop("rdi");
-        gen->mem_output << "  syscall\n";
+        gen.mem_output << "  mov rax, 60\n";
+        gen.pop("rdi");
+        gen.mem_output << "  syscall\n";
       }
       void operator()(const nodeStmtCatch *stmt_catch) const {
         auto iterator = std::find_if(
-            gen->mem_vars.cbegin(), gen->mem_vars.cend(),
+            gen.mem_vars.cbegin(), gen.mem_vars.cend(),
             [&](const Variable &var) {
               return var.name == stmt_catch->identifier.value.value();
             });
-        if (iterator != gen->mem_vars.cend()) {
+        if (iterator != gen.mem_vars.cend()) {
           std::cerr << "Variable " << stmt_catch->identifier.value.value()
                     << " already declared..." << std::endl;
           exit(EXIT_FAILURE);
         }
         // the variable is unused.
         // inserting the variable into the hashmap.
-        gen->mem_vars.push_back({.name = stmt_catch->identifier.value.value(),
-                                 .stack_local = gen->mem_stack_size});
+        gen.mem_vars.push_back({.name = stmt_catch->identifier.value.value(),
+                                 .stack_local = gen.mem_stack_size});
         // putting the value we want at the top of the stack.
-        gen->generateExpr(stmt_catch->expression);
+        gen.generateExpr(stmt_catch->expression);
       }
       void operator()(const nodeScope *scope) const {
-        gen->generateScope(scope);      }
+        gen.generateScope(scope);      }
       void operator()(const nodeStmtPerc *stmt_perc) const {
-        gen->generateExpr(stmt_perc->expr);
-        gen->pop("rax");
-        std::string label = gen->create_label();
-        gen->mem_output << "  test rax, rax\n";
-        gen->mem_output << "  jz " << label << "\n";
-        gen->generateScope(stmt_perc->scope);
-        gen->mem_output << label << ":\n";
+        gen.generateExpr(stmt_perc->expr);
+        gen.pop("rax");
+        std::string label = gen.create_label();
+        gen.mem_output << "  test rax, rax\n";
+        gen.mem_output << "  jz " << label << "\n";
+        gen.generateScope(stmt_perc->scope);
+        gen.mem_output << label << ":\n";
       }
     };
 
-    StmtVisitor visitor({.gen = this});
+    StmtVisitor visitor({.gen = *this});
     std::visit(visitor, stmt->variant);
   }
 
