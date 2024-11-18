@@ -19,7 +19,7 @@ enum class tokenType {
   plus,
   star,
   minus,
-  forw_slah,
+  forw_slash,
   open_curly,
   close_curly,
   perchance
@@ -33,7 +33,7 @@ std::optional<int> binary_precedence(tokenType type) {
     return 0;
   case tokenType::star:
     return 1;
-  case tokenType::forw_slah:
+  case tokenType::forw_slash:
     return 1;
   default:
     return {};
@@ -106,7 +106,7 @@ public:
         tokens.push_back({.type = tokenType::star});
       } else if (peek().value() == '/') {
         consume();
-        tokens.push_back({.type = tokenType::forw_slah});
+        tokens.push_back({.type = tokenType::forw_slash});
       } else if (peek().value() == '-') {
         consume();
         tokens.push_back({.type = tokenType::minus});

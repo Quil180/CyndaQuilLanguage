@@ -178,7 +178,7 @@ public:
         sub->left = new_expr_left;
         sub->right = expr_right.value();
         expr->variant = sub;
-      } else if (oper.type == tokenType::forw_slah) {
+      } else if (oper.type == tokenType::forw_slash) {
         auto div = mem_allocator.alloc<nodeBinExprDiv>();
         new_expr_left->variant = expr_left->variant;
         div->left = new_expr_left;
