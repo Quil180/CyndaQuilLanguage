@@ -15,7 +15,8 @@ enum class tokenType {
   close_paren,
   ident,
   _catch,
-  as
+  as,
+  plus
 };
 
 struct Token {
@@ -79,6 +80,10 @@ public:
       } else if (peek().value() == '~') {
         consume();
         tokens.push_back({.type = tokenType::end_line});
+        continue;
+      } else if (peek().value() == '+') {
+        consume();
+        tokens.push_back({.type = tokenType::plus});
         continue;
       } else if (std::isspace(peek().value())) {
         consume();

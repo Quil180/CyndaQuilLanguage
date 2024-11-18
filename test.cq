@@ -1,3 +1,3 @@
-catch 9 as x~
-catch 8 as y~
-run y~
+catch 1 + 1 + 1 as x~
+catch x as y~
+run y + x~

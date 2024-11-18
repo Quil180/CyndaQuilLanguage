@@ -11,31 +11,49 @@ public:
   inline explicit ASMGenerator(nodeProgram program)
       : mem_program(std::move(program)) {}
 
-  void generateExpr(const nodeExpr *expr) {
-    struct ExprVisitor {
+  void generateTerm(const nodeTerm *term) {
+    struct TermVisitor {
       ASMGenerator *gen;
 
-      void operator()(const nodeExprIntLit *expr_int_lit) const {
-        gen->mem_output << "  mov rax, " << expr_int_lit->int_lit.value.value()
+      void operator()(const nodeTermIntLit *term_IntLit) const {
+        gen->mem_output << "  mov rax, " << term_IntLit->int_lit.value.value()
                         << "\n";
         gen->push("rax");
       }
-      void operator()(const nodeExprIdent *expr_ident) {
-        if (!gen->mem_vars.contains(expr_ident->identifier.value.value())) {
+      void operator()(const nodeTermIdent *term_Ident) const {
+        if (!gen->mem_vars.contains(term_Ident->identifier.value.value())) {
           std::cerr << "Undeclared identifier "
-                    << expr_ident->identifier.value.value() << " found...\n"
+                    << term_Ident->identifier.value.value() << " found...\n"
                     << std::endl;
           exit(EXIT_FAILURE);
         }
-        const auto var = gen->mem_vars.at(expr_ident->identifier.value.value());
+        const auto var = gen->mem_vars.at(term_Ident->identifier.value.value());
         std::stringstream offset;
         offset << "QWORD [rsp + "
                << (gen->mem_stack_size - var.stack_local - 1) * 8 << "]\n";
         // we know we have an already declared variable identifier.
         gen->push(offset.str());
       }
+    };
+
+    TermVisitor visitor({.gen = this});
+    std::visit(visitor, term->variant);
+  }
+
+  void generateExpr(const nodeExpr *expr) {
+    struct ExprVisitor {
+      ASMGenerator *gen;
+
+      void operator()(const nodeTerm *term) const {
+        gen->generateTerm(term);
+      }
       void operator()(const nodeBinExpr *bin_expr) {
-        assert(false);
+        gen->generateExpr(bin_expr->add->left);
+        gen->generateExpr(bin_expr->add->right);
+        gen->pop("rax");
+        gen->pop("rbx");
+        gen->mem_output << "  add rax, rbx\n";
+        gen->push("rax");
       }
     };
 

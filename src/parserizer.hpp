@@ -2,22 +2,23 @@
 
 #include "fightingArena.hpp"
 #include "tokener.hpp"
+#include <cstdlib>
 #include <variant>
 
-struct nodeExprIntLit {
+struct nodeTermIntLit {
   Token int_lit;
 };
 
-struct nodeExprIdent {
+struct nodeTermIdent {
   Token identifier;
 };
 
 struct nodeExpr;
 
-struct nodeBinExprMul {
-  nodeExpr *left;
-  nodeExpr *right;
-};
+/*struct nodeBinExprMul {*/
+/*  nodeExpr *left;*/
+/*  nodeExpr *right;*/
+/*};*/
 
 struct nodeBinExprAdd {
   nodeExpr *left;
@@ -25,12 +26,16 @@ struct nodeBinExprAdd {
 };
 
 struct nodeBinExpr {
-  std::variant<nodeBinExprAdd *, nodeBinExprMul *> variant;
+  nodeBinExprAdd *add;
+};
+
+struct nodeTerm {
+  std::variant<nodeTermIntLit *, nodeTermIdent *> variant;
 };
 
 struct nodeExpr {
   // a variant is just going to be one or the other.
-  std::variant<nodeExprIntLit *, nodeExprIdent *, nodeBinExpr *> variant;
+  std::variant<nodeTerm *, nodeBinExpr *> variant;
 };
 
 struct nodeStmtRun {
@@ -55,19 +60,52 @@ public:
   inline explicit Parser(std::vector<Token> tokens)
       : mem_tokens(std::move(tokens)), mem_allocator(1024 * 1024 * 4) {}
 
+  std::optional<nodeTerm *> parse_term() {
+    if (auto int_lit = try_consume(tokenType::int_lit)) {
+      // integer literal found.
+      auto *term_IntLit = mem_allocator.alloc<nodeTermIntLit>();
+      term_IntLit->int_lit = int_lit.value();
+      auto term = mem_allocator.alloc<nodeTerm>();
+      term->variant = term_IntLit;
+      return term;
+    } else if (auto ident = try_consume(tokenType::ident)) {
+      // identifier found.
+      auto term_Ident = mem_allocator.alloc<nodeTermIdent>();
+      term_Ident->identifier = ident.value();
+      auto term = mem_allocator.alloc<nodeTerm>();
+      term->variant = term_Ident;
+      return term;
+    } else {
+      return {};
+    }
+  }
+
   std::optional<nodeExpr *> parse_expression() {
-    if (peek().has_value() && peek().value().type == tokenType::int_lit) {
-      auto *node_exprIntLit = mem_allocator.alloc<nodeExprIntLit>();
-      node_exprIntLit->int_lit = consume();
-      auto expr = mem_allocator.alloc<nodeExpr>();
-      expr->variant = node_exprIntLit;
-      return expr;
-    } else if (peek().has_value() && peek().value().type == tokenType::ident) {
-      auto expr_ident = mem_allocator.alloc<nodeExprIdent>();
-      expr_ident->identifier = consume();
-      auto expr = mem_allocator.alloc<nodeExpr>();
-      expr->variant = expr_ident;
-      return expr;
+    if (auto term = parse_term()) {
+      if (try_consume(tokenType::plus).has_value()) {
+        // we have a binary expression.
+        auto bin_expr = mem_allocator.alloc<nodeBinExpr>();
+        // we have a plus.
+        auto bin_expr_add = mem_allocator.alloc<nodeBinExprAdd>();
+        auto left_expr = mem_allocator.alloc<nodeExpr>();
+        left_expr->variant = term.value();
+        bin_expr_add->left = left_expr;
+        if (auto right = parse_expression()) {
+          bin_expr_add->right = right.value();
+          bin_expr->add = bin_expr_add;
+          auto expr = mem_allocator.alloc<nodeExpr>();
+          expr->variant = bin_expr;
+          return expr;
+        } else {
+          std::cerr << "Expected valid right to binary expression..."
+                    << std::endl;
+          exit(EXIT_FAILURE);
+        }
+      } else {
+        auto expr = mem_allocator.alloc<nodeExpr>();
+        expr->variant = term.value();
+        return expr;
+      }
     } else {
       return {};
     }
@@ -83,19 +121,13 @@ public:
         std::cerr << "invaild run expression..." << std::endl;
         exit(EXIT_FAILURE);
       }
-      if (peek().has_value() && peek().value().type == tokenType::end_line) {
-        consume();
-      } else {
-        std::cerr << "Expected '~'..." << std::endl;
-        exit(EXIT_FAILURE);
-      }
+
+      try_consume(tokenType::end_line, "Expected '~' at end of run statement...");
+
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = stmt_run;
       return stmt;
-    } else if (peek().has_value() && peek().value().type == tokenType::_catch &&
-               peek(2).has_value() && peek(2).value().type == tokenType::as &&
-               peek(3).has_value() &&
-               peek(3).value().type == tokenType::ident) {
+    } else if (peek().has_value() && peek().value().type == tokenType::_catch) {
       auto statement_catch = mem_allocator.alloc<nodeStmtCatch>();
       consume(); // get rid of the "catch"
       if (auto expression = parse_expression()) {
@@ -107,12 +139,7 @@ public:
       }
       consume(); // get rid of the "as"
       statement_catch->identifier = consume();
-      if (peek().has_value() && peek().value().type == tokenType::end_line) {
-        consume();
-      } else {
-        std::cerr << "Expected '~' not found..." << std::endl;
-        exit(EXIT_FAILURE);
-      }
+      try_consume(tokenType::end_line, "Expected '~' at end of statement...");
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = statement_catch;
       return stmt;
@@ -146,6 +173,22 @@ private:
     } else {
       return mem_tokens.at(mem_index +
                            offset); // return the character at that index.
+    }
+  }
+
+  inline Token try_consume(tokenType type, const std::string &error) {
+    if (peek().has_value() && peek().value().type == type) {
+      return consume();
+    } else {
+      std::cerr << error << std::endl;
+      exit(EXIT_FAILURE);
+    }
+  }
+  inline std::optional<Token> try_consume(tokenType type) {
+    if (peek().has_value() && peek().value().type == type) {
+      return consume();
+    } else {
+      return {};
     }
   }
 

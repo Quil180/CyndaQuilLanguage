@@ -11,19 +11,22 @@
 \begin{document}
 \maketitle
 \begin{align}
-  [\text{program}] &\to [\text{statement}]^* \\
-  [\text{statement}] &\to \begin{cases}
-    run\ [\text{expression}]\sim \\
-    catch\  [\text{expression}]\ as\ \text{identifier}\sim
+  [\text{Program}] &\to [\text{Statement}]^* \\
+  [\text{Statement}] &\to \begin{cases}
+    run\ [\text{Expression}]\sim \\
+    catch\  [\text{Expression}]\ as\ \text{identifier}\sim
   \end{cases} \\
   [\text{expression}]&\to \begin{cases}
-    \text{integer\_literal} \\
-    \text{identifier} \\
+    [\text{Term}] \\
     [\text{Binary Expression}] \\
   \end{cases} \\
   [\text{Binary Expression}] &\to \begin{cases}
-    [\text{expression}] * [\text{expression}] & \text{prec = 1}\\
-    [\text{expression}] + [\text{expression}] &  \text{prec = 0}\\ 
+    [\text{Expression}] * [\text{Expression}] & \text{prec = 1}\\
+    [\text{Expression}] + [\text{Expression}] &  \text{prec = 0}\\ 
+  \end{cases} \\
+  [\text{Term}] &\to \begin{cases}
+  \text{integer\_literal} \\
+  \text{identifier} \\
   \end{cases}
 \end{align}
 \end{document}
