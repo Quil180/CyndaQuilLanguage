@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.15)  18 NOV 2024 13:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.11.15)  18 NOV 2024 14:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -133,7 +133,7 @@ L3 programming layer <2024-11-02>
 Here is how much of TeX's memory you used:
  1254 strings out of 473362
  19143 string characters out of 5720989
- 414687 words of memory out of 5000000
+ 415687 words of memory out of 5000000
  24412 multiletter control sequences out of 15000+600000
  563142 words of font info for 54 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -144,7 +144,7 @@ Here is how much of TeX's memory you used:
 usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></us
 r/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr
 /local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on grammar.pdf (1 page, 65456 bytes).
+Output written on grammar.pdf (1 page, 66127 bytes).
 PDF statistics:
  38 PDF objects out of 1000 (max. 8388607)
  22 compressed objects within 1 object stream

@@ -4,6 +4,8 @@
 #include "tokener.hpp"
 #include <cassert>
 #include <cstdlib>
+#include <optional>
+#include <ostream>
 #include <variant>
 
 struct nodeTermIntLit {
@@ -19,7 +21,6 @@ struct nodeExpr;
 struct nodeTermParen {
   nodeExpr *expr;
 };
-
 
 struct nodeBinExprMul {
   nodeExpr *left;
@@ -67,12 +68,18 @@ struct nodeStmtCatch {
 
 struct nodeStmt;
 
-struct nodeStmtScope {
+struct nodeScope {
   std::vector<nodeStmt *> stmts;
 };
 
+struct nodeStmtPerc {
+  nodeExpr *expr;
+  nodeScope *scope;
+};
+
 struct nodeStmt {
-  std::variant<nodeStmtRun *, nodeStmtCatch *, nodeStmtScope *> variant;
+  std::variant<nodeStmtRun *, nodeStmtCatch *, nodeScope *, nodeStmtPerc *>
+      variant;
 };
 
 struct nodeProgram {
@@ -99,7 +106,7 @@ public:
       auto term = mem_allocator.alloc<nodeTerm>();
       term->variant = term_Ident;
       return term;
-    } else if (auto open_paren= try_consume(tokenType::open_paren)) {
+    } else if (auto open_paren = try_consume(tokenType::open_paren)) {
       auto expr = parse_expression();
       if (!expr.has_value()) {
         std::cerr << "Expected expression..." << std::endl;
@@ -185,6 +192,18 @@ public:
     return expr_left;
   }
 
+  std::optional<nodeScope *> parse_scope() {
+    if (!try_consume(tokenType::open_curly)) {
+      return {};
+    }
+    auto scope = mem_allocator.alloc<nodeScope>();
+    while (auto stmt = parse_statement()) {
+      scope->stmts.push_back(stmt.value());
+    }
+    try_consume(tokenType::close_curly, "Expected '}'...");
+    return scope;
+  }
+
   std::optional<nodeStmt *> parse_statement() {
     if (peek().value().type == tokenType::run) {
       consume();
@@ -218,14 +237,31 @@ public:
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = statement_catch;
       return stmt;
-    } else if (auto open_curly = try_consume(tokenType::open_curly)) {
-      auto scope = mem_allocator.alloc<nodeStmtScope>();
-      while (auto stmt = parse_statement()) {
-        scope->stmts.push_back(stmt.value());
+    } else if (peek().has_value() && peek().value().type == tokenType::open_curly) {
+      if (auto scope = parse_scope()) {
+        auto stmt = mem_allocator.alloc<nodeStmt>();
+        stmt->variant = scope.value();
+        return stmt;
+      } else {
+        std::cerr << "Invalid scope..." << std::endl;
+        exit(EXIT_FAILURE);
       }
-      try_consume(tokenType::close_curly, "Expected '}'...");
+    } else if (auto perc = try_consume(tokenType::perchance)) {
+      auto stmt_perc = mem_allocator.alloc<nodeStmtPerc>();
+      if (auto expr = parse_expression()) {
+        stmt_perc->expr = expr.value();
+      } else {
+        std::cerr << "Invalid perchance..." << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      if (auto scope = parse_scope()) {
+        stmt_perc->scope = scope.value();
+      } else {
+        std::cerr << "Invalid scope..." << std::endl;
+        exit(EXIT_FAILURE);
+      }
       auto stmt = mem_allocator.alloc<nodeStmt>();
-      stmt->variant = scope;
+      stmt->variant = stmt_perc;
       return stmt;
     } else {
       return {};

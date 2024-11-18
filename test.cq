@@ -1,11 +1,7 @@
 catch ( 10 - 2 * 3 ) / 2 as x~
-{
-  catch 2 as y~
-  {
-    catch 69 as z~
-    run z~
-  }
+catch 1 as y~
+perchance y - 1 {
+  run 69~
 }
-catch x + 5 as y~
-run x~
+run 1~
 

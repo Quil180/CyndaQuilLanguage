@@ -15,9 +15,12 @@
   [\text{Statement}] &\to \begin{cases}
     run\ [\text{Expression}]\sim \\
     catch\  [\text{Expression}]\ as\ \text{identifier}\sim \\
-    \{[\text{Statement}]^*\}
+    \{[\text{Statement}]^*\} \\
+    perchance\ [\text{Expression}]\ [\text{Scope}] \\
+    [\text{Scope}] \\
   \end{cases} \\
-  [\text{expression}]&\to \begin{cases}
+  [\text{Scope}] &\to [\text{Statement}]^* \\
+  [\text{Expression}]&\to \begin{cases}
     [\text{Term}] \\
     [\text{Binary Expression}] \\
   \end{cases} \\

@@ -21,7 +21,8 @@ enum class tokenType {
   minus,
   forw_slah,
   open_curly,
-  close_curly
+  close_curly,
+  perchance
 };
 
 std::optional<int> binary_precedence(tokenType type) {
@@ -72,6 +73,9 @@ public:
           buffer.clear();
         } else if (buffer == "as") {
           tokens.push_back({.type = tokenType::as});
+          buffer.clear();
+        } else if (buffer == "perchance") {
+          tokens.push_back({.type = tokenType::perchance});
           buffer.clear();
         } else {
           // no valid special keyword was found therefore its an identifier.

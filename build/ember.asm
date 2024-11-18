@@ -20,24 +20,27 @@ _start:
   pop rbx
   div rbx
   push rax
-  mov rax, 2
+  mov rax, 1
   push rax
-  mov rax, 69
-  push rax
-  push QWORD [rsp + 0]
-  mov rax, 60
-  pop rdi
-  syscall
-  add rsp, 8
-  add rsp, 8
-  mov rax, 5
+  mov rax, 1
   push rax
   push QWORD [rsp + 8]
   pop rax
   pop rbx
-  add rax, rbx
+  sub rax, rbx
   push rax
-  push QWORD [rsp + 8]
+  pop rax
+  test rax, rax
+  jz label0
+  mov rax, 69
+  push rax
+  mov rax, 60
+  pop rdi
+  syscall
+  add rsp, 0
+label0:
+  mov rax, 1
+  push rax
   mov rax, 60
   pop rdi
   syscall

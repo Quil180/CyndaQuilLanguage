@@ -103,6 +103,14 @@ public:
     std::visit(visitor, expr->variant);
   }
 
+  void generateScope(const nodeScope *scope) {
+        begin_scope();
+        for (const nodeStmt *stmt : scope->stmts) {
+          generateSttmt(stmt);
+        }
+        end_scope();
+  }
+
   void generateSttmt(const nodeStmt *stmt) {
     struct StmtVisitor {
       ASMGenerator *gen;
@@ -132,12 +140,16 @@ public:
         // putting the value we want at the top of the stack.
         gen->generateExpr(stmt_catch->expression);
       }
-      void operator()(const nodeStmtScope *scope) const {
-        gen->begin_scope();
-        for (const nodeStmt *stmt : scope->stmts) {
-          gen->generateSttmt(stmt);
-        }
-        gen->end_scope();
+      void operator()(const nodeScope *scope) const {
+        gen->generateScope(scope);      }
+      void operator()(const nodeStmtPerc *stmt_perc) const {
+        gen->generateExpr(stmt_perc->expr);
+        gen->pop("rax");
+        std::string label = gen->create_label();
+        gen->mem_output << "  test rax, rax\n";
+        gen->mem_output << "  jz " << label << "\n";
+        gen->generateScope(stmt_perc->scope);
+        gen->mem_output << label << ":\n";
       }
     };
 
@@ -179,6 +191,11 @@ private:
     }
     mem_scopes.pop_back(); // get rid of the scop we just ended
   }
+  std::string create_label() {
+    std::stringstream ss;
+    ss << "label" << mem_label_cnt++;
+    return ss.str();
+  }
 
   struct Variable {
     // struct for the variables.
@@ -191,4 +208,5 @@ private:
   size_t mem_stack_size = 0;        // stack size.
   std::vector<Variable> mem_vars{}; // variable "array"
   std::vector<size_t> mem_scopes{}; // indexes of the scopes in the mem_vars.
+  int mem_label_cnt = 0;            // count of if statements...
 };
