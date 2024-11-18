@@ -1,8 +1,9 @@
 #pragma once
 
 #include "parserizer.hpp"
+#include <algorithm>
+#include <map>
 #include <sstream>
-#include <unordered_map>
 
 class ASMGenerator {
 public:
@@ -19,16 +20,21 @@ public:
         gen->push("rax");
       }
       void operator()(const nodeTermIdent *term_ident) const {
-        if (!gen->mem_vars.contains(term_ident->identifier.value.value())) {
+        auto iterator = std::find_if(
+            gen->mem_vars.cbegin(), gen->mem_vars.cend(),
+            [&](const Variable &var) {
+              return var.name == term_ident->identifier.value.value();
+            });
+        if (iterator == gen->mem_vars.cend()) {
           std::cerr << "Undeclared identifier "
                     << term_ident->identifier.value.value() << " found...\n"
                     << std::endl;
           exit(EXIT_FAILURE);
         }
-        const auto var = gen->mem_vars.at(term_ident->identifier.value.value());
         std::stringstream offset;
         offset << "QWORD [rsp + "
-               << (gen->mem_stack_size - var.stack_local - 1) * 8 << "]\n";
+               << (gen->mem_stack_size - (*iterator).stack_local - 1) * 8
+               << "]\n";
         // we know we have an already declared variable identifier.
         gen->push(offset.str());
       }
@@ -109,17 +115,29 @@ public:
         gen->mem_output << "  syscall\n";
       }
       void operator()(const nodeStmtCatch *stmt_catch) const {
-        if (gen->mem_vars.contains(stmt_catch->identifier.value.value())) {
+        auto iterator = std::find_if(
+            gen->mem_vars.cbegin(), gen->mem_vars.cend(),
+            [&](const Variable &var) {
+              return var.name == stmt_catch->identifier.value.value();
+            });
+        if (iterator != gen->mem_vars.cend()) {
           std::cerr << "Variable " << stmt_catch->identifier.value.value()
                     << " already declared..." << std::endl;
           exit(EXIT_FAILURE);
         }
         // the variable is unused.
         // inserting the variable into the hashmap.
-        gen->mem_vars.insert({stmt_catch->identifier.value.value(),
-                              Var{.stack_local = gen->mem_stack_size}});
+        gen->mem_vars.push_back({.name = stmt_catch->identifier.value.value(),
+                                 .stack_local = gen->mem_stack_size});
         // putting the value we want at the top of the stack.
         gen->generateExpr(stmt_catch->expression);
+      }
+      void operator()(const nodeStmtScope *scope) const {
+        gen->begin_scope();
+        for (const nodeStmt *stmt : scope->stmts) {
+          gen->generateSttmt(stmt);
+        }
+        gen->end_scope();
       }
     };
 
@@ -151,14 +169,26 @@ private:
     mem_output << "  pop " << reg << "\n";
     mem_stack_size--;
   }
+  void begin_scope() { mem_scopes.push_back(mem_vars.size()); }
+  void end_scope() {
+    size_t pop_cnt = mem_vars.size() - mem_scopes.back();
+    mem_output << "  add rsp, " << pop_cnt * 8 << "\n";
+    mem_stack_size -= pop_cnt;
+    for (int i = 0; i < pop_cnt; i++) {
+      mem_vars.pop_back(); // get rid of all the vars in the scope
+    }
+    mem_scopes.pop_back(); // get rid of the scop we just ended
+  }
 
-  struct Var {
+  struct Variable {
     // struct for the variables.
+    std::string name;
     size_t stack_local;
   };
 
-  const nodeProgram mem_program; // program nodes.
-  std::stringstream mem_output;  // output assembly.
-  size_t mem_stack_size = 0;     // stack size.
-  std::unordered_map<std::string, Var> mem_vars{};
+  const nodeProgram mem_program;    // program nodes.
+  std::stringstream mem_output;     // output assembly.
+  size_t mem_stack_size = 0;        // stack size.
+  std::vector<Variable> mem_vars{}; // variable "array"
+  std::vector<size_t> mem_scopes{}; // indexes of the scopes in the mem_vars.
 };

@@ -14,7 +14,8 @@
   [\text{Program}] &\to [\text{Statement}]^* \\
   [\text{Statement}] &\to \begin{cases}
     run\ [\text{Expression}]\sim \\
-    catch\  [\text{Expression}]\ as\ \text{identifier}\sim
+    catch\  [\text{Expression}]\ as\ \text{identifier}\sim \\
+    \{[\text{Statement}]^*\}
   \end{cases} \\
   [\text{expression}]&\to \begin{cases}
     [\text{Term}] \\

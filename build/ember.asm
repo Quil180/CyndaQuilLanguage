@@ -20,15 +20,10 @@ _start:
   pop rbx
   div rbx
   push rax
-  mov rax, 5
+  mov rax, 2
   push rax
-  push QWORD [rsp + 8]
-
-  pop rax
-  pop rbx
-  add rax, rbx
-  push rax
-  push QWORD [rsp + 8]
+  add rsp, 8
+  push QWORD [rsp + 0]
 
   mov rax, 60
   pop rdi

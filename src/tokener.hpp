@@ -18,19 +18,21 @@ enum class tokenType {
   as,
   plus,
   star,
-  sub,
-  div
+  minus,
+  forw_slah,
+  open_curly,
+  close_curly
 };
 
 std::optional<int> binary_precedence(tokenType type) {
   switch (type) {
   case tokenType::plus:
     return 0;
-  case tokenType::sub:
+  case tokenType::minus:
     return 0;
   case tokenType::star:
     return 1;
-  case tokenType::div:
+  case tokenType::forw_slah:
     return 1;
   default:
     return {};
@@ -100,12 +102,18 @@ public:
         tokens.push_back({.type = tokenType::star});
       } else if (peek().value() == '/') {
         consume();
-        tokens.push_back({.type = tokenType::div});
+        tokens.push_back({.type = tokenType::forw_slah});
       } else if (peek().value() == '-') {
         consume();
-        tokens.push_back({.type = tokenType::sub});
+        tokens.push_back({.type = tokenType::minus});
       } else if (std::isspace(peek().value())) {
         consume();
+      } else if (peek().value() == '{') {
+        consume();
+        tokens.push_back({.type = tokenType::open_curly});
+      } else if (peek().value() == '}') {
+        consume();
+        tokens.push_back({.type = tokenType::close_curly});
       } else {
         // no tokentype could be assigned.
         std::cerr << "No token type could be assigned..." << std::endl;

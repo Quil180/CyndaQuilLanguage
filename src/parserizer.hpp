@@ -65,8 +65,14 @@ struct nodeStmtCatch {
   nodeExpr *expression;
 };
 
+struct nodeStmt;
+
+struct nodeStmtScope {
+  std::vector<nodeStmt *> stmts;
+};
+
 struct nodeStmt {
-  std::variant<nodeStmtRun *, nodeStmtCatch *> variant;
+  std::variant<nodeStmtRun *, nodeStmtCatch *, nodeStmtScope *> variant;
 };
 
 struct nodeProgram {
@@ -159,13 +165,13 @@ public:
         mul->left = new_expr_left;
         mul->right = expr_right.value();
         expr->variant = mul;
-      } else if (oper.type == tokenType::sub) {
+      } else if (oper.type == tokenType::minus) {
         auto sub = mem_allocator.alloc<nodeBinExprSub>();
         new_expr_left->variant = expr_left->variant;
         sub->left = new_expr_left;
         sub->right = expr_right.value();
         expr->variant = sub;
-      } else if (oper.type == tokenType::div) {
+      } else if (oper.type == tokenType::forw_slah) {
         auto div = mem_allocator.alloc<nodeBinExprDiv>();
         new_expr_left->variant = expr_left->variant;
         div->left = new_expr_left;
@@ -211,6 +217,15 @@ public:
       try_consume(tokenType::end_line, "Expected '~' at end of statement...");
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = statement_catch;
+      return stmt;
+    } else if (auto open_curly = try_consume(tokenType::open_curly)) {
+      auto scope = mem_allocator.alloc<nodeStmtScope>();
+      while (auto stmt = parse_statement()) {
+        scope->stmts.push_back(stmt.value());
+      }
+      try_consume(tokenType::close_curly, "Expected '}'...");
+      auto stmt = mem_allocator.alloc<nodeStmt>();
+      stmt->variant = scope;
       return stmt;
     } else {
       return {};
