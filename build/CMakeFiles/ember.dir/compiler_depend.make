@@ -3,12 +3,14 @@
 
 CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.cpp \
   /home/yousef/Documents/CyndaQuil/src/asm_generator.hpp \
+  /home/yousef/Documents/CyndaQuil/src/fightingArena.hpp \
   /home/yousef/Documents/CyndaQuil/src/parserizer.hpp \
   /home/yousef/Documents/CyndaQuil/src/tokener.hpp \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
   /usr/include/asm/errno.h \
+  /usr/include/assert.h \
   /usr/include/bits/atomic_wide_counter.h \
   /usr/include/bits/byteswap.h \
   /usr/include/bits/cpu-set.h \
@@ -144,6 +146,7 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
   /usr/include/c++/14.2.1/bits/utility.h \
   /usr/include/c++/14.2.1/bits/vector.tcc \
   /usr/include/c++/14.2.1/bits/version.h \
+  /usr/include/c++/14.2.1/cassert \
   /usr/include/c++/14.2.1/cctype \
   /usr/include/c++/14.2.1/cerrno \
   /usr/include/c++/14.2.1/clocale \
@@ -346,12 +349,6 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 
 /usr/include/c++/14.2.1/bits/stl_iterator_base_types.h:
 
-/usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/ctype_inline.h:
-
-/usr/include/c++/14.2.1/stdexcept:
-
-/usr/include/bits/types/time_t.h:
-
 /usr/include/bits/types/struct_tm.h:
 
 /usr/include/bits/types/struct_timeval.h:
@@ -367,6 +364,10 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 /usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/atomic_word.h:
 
 /usr/include/bits/types/locale_t.h:
+
+/usr/include/c++/14.2.1/bits/stl_construct.h:
+
+/usr/include/c++/14.2.1/bits/cxxabi_forced.h:
 
 /usr/include/c++/14.2.1/bits/stl_uninitialized.h:
 
@@ -414,43 +415,43 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 
 /usr/include/bits/thread-shared-types.h:
 
-/usr/include/features.h:
+/usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/ctype_inline.h:
 
-/usr/include/bits/endianness.h:
+/usr/include/c++/14.2.1/stdexcept:
 
-/usr/include/bits/types/struct_sched_param.h:
+/usr/include/bits/types/time_t.h:
 
-/usr/include/ctype.h:
+/usr/include/c++/14.2.1/bits/ostream.tcc:
 
-/usr/include/bits/waitflags.h:
+/usr/include/bits/struct_mutex.h:
 
-/home/yousef/Documents/CyndaQuil/src/main.cpp:
+/usr/include/c++/14.2.1/bits/ranges_cmp.h:
+
+/usr/include/bits/cpu-set.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/c++/14.2.1/bits/functexcept.h:
 
 /usr/include/bits/long-double.h:
 
-/usr/include/bits/types/__sigset_t.h:
-
-/usr/include/c++/14.2.1/bits/allocator.h:
-
-/usr/include/alloca.h:
+/usr/include/bits/setjmp.h:
 
 /usr/include/bits/types/struct___jmp_buf_tag.h:
-
-/usr/include/bits/setjmp.h:
 
 /usr/include/bits/wchar.h:
 
 /usr/include/c++/14.2.1/bits/locale_facets.h:
 
-/usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/error_constants.h:
-
-/usr/include/bits/types/clock_t.h:
-
-/usr/include/bits/types/__fpos_t.h:
-
 /usr/include/asm-generic/errno.h:
 
 /usr/include/c++/14.2.1/backward/binders.h:
+
+/usr/include/alloca.h:
+
+/usr/include/bits/types/__sigset_t.h:
+
+/usr/include/c++/14.2.1/bits/allocator.h:
 
 /usr/include/bits/stdlib-float.h:
 
@@ -468,8 +469,6 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 
 /usr/include/bits/types/mbstate_t.h:
 
-/usr/include/c++/14.2.1/bits/ostream.tcc:
-
 /usr/include/bits/types/__locale_t.h:
 
 /usr/include/bits/types/sigset_t.h:
@@ -478,7 +477,31 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 
 /usr/include/c++/14.2.1/bits/istream.tcc:
 
+/usr/include/bits/types/struct_sched_param.h:
+
+/usr/include/ctype.h:
+
+/usr/include/bits/waitflags.h:
+
+/home/yousef/Documents/CyndaQuil/src/main.cpp:
+
+/usr/include/features.h:
+
+/usr/include/c++/14.2.1/cassert:
+
+/usr/include/bits/endianness.h:
+
 /usr/include/bits/locale.h:
+
+/usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/error_constants.h:
+
+/usr/include/bits/types/clock_t.h:
+
+/usr/include/bits/types/__fpos_t.h:
+
+/home/yousef/Documents/CyndaQuil/src/fightingArena.hpp:
+
+/usr/include/c++/14.2.1/bits/ostream_insert.h:
 
 /usr/include/c++/14.2.1/ext/aligned_buffer.h:
 
@@ -497,10 +520,6 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 /usr/include/bits/pthread_stack_min-dynamic.h:
 
 /usr/include/c++/14.2.1/bits/locale_classes.tcc:
-
-/usr/include/c++/14.2.1/bits/cxxabi_forced.h:
-
-/usr/include/c++/14.2.1/bits/stl_construct.h:
 
 /usr/include/bits/struct_rwlock.h:
 
@@ -525,16 +544,6 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 /usr/include/asm-generic/errno-base.h:
 
 /usr/include/c++/14.2.1/bits/fstream.tcc:
-
-/usr/include/bits/cpu-set.h:
-
-/usr/include/bits/typesizes.h:
-
-/usr/include/c++/14.2.1/bits/functexcept.h:
-
-/usr/include/bits/struct_mutex.h:
-
-/usr/include/c++/14.2.1/bits/ranges_cmp.h:
 
 /usr/include/c++/14.2.1/bits/iterator_concepts.h:
 
@@ -581,6 +590,8 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 /usr/include/c++/14.2.1/bits/stl_iterator.h:
 
 /usr/include/c++/14.2.1/bits/codecvt.h:
+
+/usr/include/assert.h:
 
 /usr/include/c++/14.2.1/bits/concept_check.h:
 
@@ -645,8 +656,6 @@ CMakeFiles/ember.dir/src/main.cpp.o: /home/yousef/Documents/CyndaQuil/src/main.c
 /usr/include/bits/floatn-common.h:
 
 /usr/include/c++/14.2.1/bits/parse_numbers.h:
-
-/usr/include/c++/14.2.1/bits/ostream_insert.h:
 
 /usr/include/c++/14.2.1/system_error:
 

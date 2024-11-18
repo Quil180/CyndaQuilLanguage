@@ -1,7 +1,7 @@
 #pragma once
 
 #include "parserizer.hpp"
-#include <cstdlib>
+#include <cassert>
 #include <sstream>
 #include <unordered_map>
 #include <variant>
@@ -11,70 +11,73 @@ public:
   inline explicit ASMGenerator(nodeProgram program)
       : mem_program(std::move(program)) {}
 
-  void generateExpr(const nodeExpr &expr) {
+  void generateExpr(const nodeExpr *expr) {
     struct ExprVisitor {
       ASMGenerator *gen;
 
-      void operator()(const nodeExprIntLit &expr_int_lit) const {
-        gen->mem_output << "  mov rax, " << expr_int_lit.int_lit.value.value()
+      void operator()(const nodeExprIntLit *expr_int_lit) const {
+        gen->mem_output << "  mov rax, " << expr_int_lit->int_lit.value.value()
                         << "\n";
         gen->push("rax");
       }
-      void operator()(const nodeExprIdent &expr_ident) {
-        if (!gen->mem_vars.contains(expr_ident.identifier.value.value())) {
+      void operator()(const nodeExprIdent *expr_ident) {
+        if (!gen->mem_vars.contains(expr_ident->identifier.value.value())) {
           std::cerr << "Undeclared identifier "
-                    << expr_ident.identifier.value.value() << " found...\n"
+                    << expr_ident->identifier.value.value() << " found...\n"
                     << std::endl;
           exit(EXIT_FAILURE);
         }
-        const auto var = gen->mem_vars.at(expr_ident.identifier.value.value());
+        const auto var = gen->mem_vars.at(expr_ident->identifier.value.value());
         std::stringstream offset;
         offset << "QWORD [rsp + "
                << (gen->mem_stack_size - var.stack_local - 1) * 8 << "]\n";
         // we know we have an already declared variable identifier.
         gen->push(offset.str());
       }
+      void operator()(const nodeBinExpr *bin_expr) {
+        assert(false);
+      }
     };
 
     ExprVisitor visitor({.gen = this});
-    std::visit(visitor, expr.variant);
+    std::visit(visitor, expr->variant);
   }
 
-  void generateSttmt(const nodeStmt &stmt) {
+  void generateSttmt(const nodeStmt *stmt) {
     struct StmtVisitor {
       ASMGenerator *gen;
 
-      void operator()(const nodeStmtRun &stmt_run) const {
-        gen->generateExpr(stmt_run.expression);
+      void operator()(const nodeStmtRun *stmt_run) const {
+        gen->generateExpr(stmt_run->expression);
 
         gen->mem_output << "  mov rax, 60\n";
         gen->pop("rdi");
         gen->mem_output << "  syscall\n";
       }
-      void operator()(const nodeStmtCatch &stmt_catch) const {
-        if (gen->mem_vars.contains(stmt_catch.identifier.value.value())) {
-          std::cerr << "Variable " << stmt_catch.identifier.value.value()
+      void operator()(const nodeStmtCatch *stmt_catch) const {
+        if (gen->mem_vars.contains(stmt_catch->identifier.value.value())) {
+          std::cerr << "Variable " << stmt_catch->identifier.value.value()
                     << " already declared..." << std::endl;
           exit(EXIT_FAILURE);
         }
         // the variable is unused.
         // inserting the variable into the hashmap.
-        gen->mem_vars.insert({stmt_catch.identifier.value.value(),
+        gen->mem_vars.insert({stmt_catch->identifier.value.value(),
                               Var{.stack_local = gen->mem_stack_size}});
         // putting the value we want at the top of the stack.
-        gen->generateExpr(stmt_catch.expression);
+        gen->generateExpr(stmt_catch->expression);
       }
     };
 
     StmtVisitor visitor({.gen = this});
-    std::visit(visitor, stmt.variant);
+    std::visit(visitor, stmt->variant);
   }
 
   [[nodiscard]] std::string generateProgram() {
     mem_output << "global _start\n_start:\n";
 
     // now we parse the program statements...
-    for (const nodeStmt &statement : mem_program.statements) {
+    for (const nodeStmt *statement : mem_program.statements) {
       generateSttmt(statement);
     }
 

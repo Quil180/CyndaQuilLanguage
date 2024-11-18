@@ -2,8 +2,6 @@
 
 #include "fightingArena.hpp"
 #include "tokener.hpp"
-#include <cstdlib>
-#include <optional>
 #include <variant>
 
 struct nodeExprIntLit {
@@ -14,23 +12,25 @@ struct nodeExprIdent {
   Token identifier;
 };
 
-struct BinExprMul {
+struct nodeExpr;
+
+struct nodeBinExprMul {
   nodeExpr *left;
   nodeExpr *right;
 };
 
-struct BinExprAdd {
+struct nodeBinExprAdd {
   nodeExpr *left;
   nodeExpr *right;
 };
 
-struct BinExpr {
-  std::variant<BinExprAdd *, BinExprMul *> variant;
+struct nodeBinExpr {
+  std::variant<nodeBinExprAdd *, nodeBinExprMul *> variant;
 };
 
 struct nodeExpr {
   // a variant is just going to be one or the other.
-  std::variant<nodeExprIntLit *, nodeExprIdent *, BinExpr *> variant;
+  std::variant<nodeExprIntLit *, nodeExprIdent *, nodeBinExpr *> variant;
 };
 
 struct nodeStmtRun {
@@ -47,7 +47,7 @@ struct nodeStmt {
 };
 
 struct nodeProgram {
-  std::vector<nodeStmt> statements;
+  std::vector<nodeStmt *> statements;
 };
 
 class Parser {
@@ -96,17 +96,17 @@ public:
                peek(2).has_value() && peek(2).value().type == tokenType::as &&
                peek(3).has_value() &&
                peek(3).value().type == tokenType::ident) {
-      auto statement_catch = nodeStmtCatch{};
+      auto statement_catch = mem_allocator.alloc<nodeStmtCatch>();
       consume(); // get rid of the "catch"
       if (auto expression = parse_expression()) {
-        statement_catch.expression = expression.value();
+        statement_catch->expression = expression.value();
       } else {
         std::cerr << "Invalid catch... Correct format is..." << std::endl;
         std::cerr << "catch [expression] as [identifier]~" << std::endl;
         exit(EXIT_FAILURE);
       }
       consume(); // get rid of the "as"
-      statement_catch.identifier = consume();
+      statement_catch->identifier = consume();
       if (peek().has_value() && peek().value().type == tokenType::end_line) {
         consume();
       } else {
@@ -114,7 +114,7 @@ public:
         exit(EXIT_FAILURE);
       }
       auto stmt = mem_allocator.alloc<nodeStmt>();
-      stmt->variant = ;
+      stmt->variant = statement_catch;
       return stmt;
     } else {
       return {};

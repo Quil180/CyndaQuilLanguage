@@ -4,12 +4,14 @@
 CMakeFiles/ember.dir/src/main.cpp.o
  /home/yousef/Documents/CyndaQuil/src/main.cpp
  /home/yousef/Documents/CyndaQuil/src/asm_generator.hpp
+ /home/yousef/Documents/CyndaQuil/src/fightingArena.hpp
  /home/yousef/Documents/CyndaQuil/src/parserizer.hpp
  /home/yousef/Documents/CyndaQuil/src/tokener.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h
  /usr/include/asm/errno.h
+ /usr/include/assert.h
  /usr/include/bits/atomic_wide_counter.h
  /usr/include/bits/byteswap.h
  /usr/include/bits/cpu-set.h
@@ -145,6 +147,7 @@ CMakeFiles/ember.dir/src/main.cpp.o
  /usr/include/c++/14.2.1/bits/utility.h
  /usr/include/c++/14.2.1/bits/vector.tcc
  /usr/include/c++/14.2.1/bits/version.h
+ /usr/include/c++/14.2.1/cassert
  /usr/include/c++/14.2.1/cctype
  /usr/include/c++/14.2.1/cerrno
  /usr/include/c++/14.2.1/clocale
