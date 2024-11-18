@@ -1,5 +1,4 @@
 #include "asm_generator.hpp"
-#include "fightingArena.hpp"
 #include <fstream>
 
 int main(int argc, char *argv[]) {

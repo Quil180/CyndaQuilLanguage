@@ -1,10 +1,8 @@
 #pragma once
 
 #include "parserizer.hpp"
-#include <cassert>
 #include <sstream>
 #include <unordered_map>
-#include <variant>
 
 class ASMGenerator {
 public:
@@ -15,24 +13,27 @@ public:
     struct TermVisitor {
       ASMGenerator *gen;
 
-      void operator()(const nodeTermIntLit *term_IntLit) const {
-        gen->mem_output << "  mov rax, " << term_IntLit->int_lit.value.value()
+      void operator()(const nodeTermIntLit *term_int_lit) const {
+        gen->mem_output << "  mov rax, " << term_int_lit->int_lit.value.value()
                         << "\n";
         gen->push("rax");
       }
-      void operator()(const nodeTermIdent *term_Ident) const {
-        if (!gen->mem_vars.contains(term_Ident->identifier.value.value())) {
+      void operator()(const nodeTermIdent *term_ident) const {
+        if (!gen->mem_vars.contains(term_ident->identifier.value.value())) {
           std::cerr << "Undeclared identifier "
-                    << term_Ident->identifier.value.value() << " found...\n"
+                    << term_ident->identifier.value.value() << " found...\n"
                     << std::endl;
           exit(EXIT_FAILURE);
         }
-        const auto var = gen->mem_vars.at(term_Ident->identifier.value.value());
+        const auto var = gen->mem_vars.at(term_ident->identifier.value.value());
         std::stringstream offset;
         offset << "QWORD [rsp + "
                << (gen->mem_stack_size - var.stack_local - 1) * 8 << "]\n";
         // we know we have an already declared variable identifier.
         gen->push(offset.str());
+      }
+      void operator()(const nodeTermParen *term_paren) const {
+        gen->generateExpr(term_paren->expr);
       }
     };
 
@@ -45,19 +46,35 @@ public:
       ASMGenerator *gen;
 
       void operator()(const nodeBinExprAdd *add) const {
-        gen->generateExpr(add->left);
         gen->generateExpr(add->right);
+        gen->generateExpr(add->left);
         gen->pop("rax");
         gen->pop("rbx");
         gen->mem_output << "  add rax, rbx\n";
         gen->push("rax");
       }
+      void operator()(const nodeBinExprSub *sub) const {
+        gen->generateExpr(sub->right);
+        gen->generateExpr(sub->left);
+        gen->pop("rax");
+        gen->pop("rbx");
+        gen->mem_output << "  sub rax, rbx\n";
+        gen->push("rax");
+      }
       void operator()(const nodeBinExprMul *mul) const {
-        gen->generateExpr(mul->left);
         gen->generateExpr(mul->right);
+        gen->generateExpr(mul->left);
         gen->pop("rax");
         gen->pop("rbx");
         gen->mem_output << "  mul rbx\n";
+        gen->push("rax");
+      }
+      void operator()(const nodeBinExprDiv *div) const {
+        gen->generateExpr(div->right);
+        gen->generateExpr(div->left);
+        gen->pop("rax");
+        gen->pop("rbx");
+        gen->mem_output << "  div rbx\n";
         gen->push("rax");
       }
     };

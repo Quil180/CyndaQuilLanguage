@@ -17,14 +17,20 @@ enum class tokenType {
   _catch,
   as,
   plus,
-  star
+  star,
+  sub,
+  div
 };
 
 std::optional<int> binary_precedence(tokenType type) {
   switch (type) {
   case tokenType::plus:
     return 0;
+  case tokenType::sub:
+    return 0;
   case tokenType::star:
+    return 1;
+  case tokenType::div:
     return 1;
   default:
     return {};
@@ -87,6 +93,7 @@ public:
         tokens.push_back({.type = tokenType::open_paren});
       } else if (peek().value() == ')') {
         consume();
+        tokens.push_back({.type = tokenType::close_paren});
         continue;
         tokens.push_back({.type = tokenType::close_paren});
       } else if (peek().value() == '~') {
@@ -100,6 +107,14 @@ public:
       } else if (peek().value() == '*') {
         consume();
         tokens.push_back({.type = tokenType::star});
+        continue;
+      } else if (peek().value() == '/') {
+        consume();
+        tokens.push_back({.type = tokenType::div});
+        continue;
+      } else if (peek().value() == '-') {
+        consume();
+        tokens.push_back({.type = tokenType::sub});
         continue;
       } else if (std::isspace(peek().value())) {
         consume();

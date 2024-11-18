@@ -2,6 +2,7 @@
 
 #include "fightingArena.hpp"
 #include "tokener.hpp"
+#include <cassert>
 #include <cstdlib>
 #include <variant>
 
@@ -15,6 +16,11 @@ struct nodeTermIdent {
 
 struct nodeExpr;
 
+struct nodeTermParen {
+  nodeExpr *expr;
+};
+
+
 struct nodeBinExprMul {
   nodeExpr *left;
   nodeExpr *right;
@@ -25,12 +31,24 @@ struct nodeBinExprAdd {
   nodeExpr *right;
 };
 
+struct nodeBinExprSub {
+  nodeExpr *left;
+  nodeExpr *right;
+};
+
+struct nodeBinExprDiv {
+  nodeExpr *left;
+  nodeExpr *right;
+};
+
 struct nodeBinExpr {
-  std::variant<nodeBinExprAdd *, nodeBinExprMul *> variant;
+  std::variant<nodeBinExprAdd *, nodeBinExprMul *, nodeBinExprSub *,
+               nodeBinExprDiv *>
+      variant;
 };
 
 struct nodeTerm {
-  std::variant<nodeTermIntLit *, nodeTermIdent *> variant;
+  std::variant<nodeTermIntLit *, nodeTermIdent *, nodeTermParen *> variant;
 };
 
 struct nodeExpr {
@@ -74,6 +92,19 @@ public:
       term_Ident->identifier = ident.value();
       auto term = mem_allocator.alloc<nodeTerm>();
       term->variant = term_Ident;
+      return term;
+    } else if (auto open_paren= try_consume(tokenType::open_paren)) {
+      auto expr = parse_expression();
+      if (!expr.has_value()) {
+        std::cerr << "Expected expression..." << std::endl;
+        exit(EXIT_FAILURE);
+      }
+      // we have a valid expression...
+      try_consume(tokenType::close_paren, "Expected ')'...");
+      auto term_paren = mem_allocator.alloc<nodeTermParen>();
+      term_paren->expr = expr.value();
+      auto term = mem_allocator.alloc<nodeTerm>();
+      term->variant = term_paren;
       return term;
     } else {
       return {};
@@ -128,6 +159,20 @@ public:
         mul->left = new_expr_left;
         mul->right = expr_right.value();
         expr->variant = mul;
+      } else if (oper.type == tokenType::sub) {
+        auto sub = mem_allocator.alloc<nodeBinExprSub>();
+        new_expr_left->variant = expr_left->variant;
+        sub->left = new_expr_left;
+        sub->right = expr_right.value();
+        expr->variant = sub;
+      } else if (oper.type == tokenType::div) {
+        auto div = mem_allocator.alloc<nodeBinExprDiv>();
+        new_expr_left->variant = expr_left->variant;
+        div->left = new_expr_left;
+        div->right = expr_right.value();
+        expr->variant = div;
+      } else {
+        assert(false);
       }
       expr_left->variant = expr;
     }
