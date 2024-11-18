@@ -1,4 +1,5 @@
 #include "asm_generator.hpp"
+#include "fightingArena.hpp"
 #include <fstream>
 
 int main(int argc, char *argv[]) {
@@ -10,7 +11,7 @@ int main(int argc, char *argv[]) {
   }
   // from this point on, we have been given one file to compile.
 
-  std::fstream input(argv[1], std::ios::in);      // declaring where to read from.
+  std::fstream input(argv[1], std::ios::in); // declaring where to read from.
   std::stringstream content_stream;          // making the stream to read into
   content_stream << input.rdbuf();           // reading the file input.
   input.close();                             // closing the file
@@ -22,7 +23,7 @@ int main(int argc, char *argv[]) {
   Tokenizer tokenizer(std::move(contents));
   std::vector<Token> tokens = tokenizer.tokenize();
 
-  // 
+  //
   Parser parser(std::move(tokens));
   std::optional<nodeProgram> program = parser.parse_program();
 

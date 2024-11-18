@@ -1,0 +1,29 @@
+\documentclass[12pt, letterpaper]{article}
+
+\usepackage{titling}
+\usepackage{amsmath}
+
+\setlength{\droptitle}{-50mm}
+\title{CyndaQuil Grammar Sheet}
+\author{Yousef Alaa Awad}
+
+
+\begin{document}
+\maketitle
+\begin{align}
+  [\text{program}] &\to [\text{statement}]^* \\
+  [\text{statement}] &\to \begin{cases}
+    run\ [\text{expression}]\sim \\
+    catch\  [\text{expression}]\ as\ \text{identifier}\sim
+  \end{cases} \\
+  [\text{expression}]&\to \begin{cases}
+    \text{integer\_literal} \\
+    \text{identifier} \\
+    [\text{Binary Expression}] \\
+  \end{cases} \\
+  [\text{Binary Expression}] &\to \begin{cases}
+    [\text{expression}] * [\text{expression}] & \text{prec = 1}\\
+    [\text{expression}] + [\text{expression}] &  \text{prec = 0}\\ 
+  \end{cases}
+\end{align}
+\end{document}
