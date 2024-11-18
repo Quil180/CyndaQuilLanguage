@@ -65,20 +65,16 @@ public:
           // we found a return statement.
           tokens.push_back({.type = tokenType::run});
           buffer.clear();
-          continue;
         } else if (buffer == "catch") {
           tokens.push_back({.type = tokenType::_catch});
           buffer.clear();
-          continue;
         } else if (buffer == "as") {
           tokens.push_back({.type = tokenType::as});
           buffer.clear();
-          continue;
         } else {
           // no valid special keyword was found therefore its an identifier.
           tokens.push_back({.type = tokenType::ident, .value = buffer});
           buffer.clear();
-          continue;
         }
       } else if (std::isdigit(peek().value())) {
         buffer.push_back(consume());
@@ -87,38 +83,29 @@ public:
         }
         tokens.push_back({.type = tokenType::int_lit, .value = buffer});
         buffer.clear();
-        continue;
       } else if (peek().value() == '(') {
         consume();
         tokens.push_back({.type = tokenType::open_paren});
       } else if (peek().value() == ')') {
         consume();
         tokens.push_back({.type = tokenType::close_paren});
-        continue;
-        tokens.push_back({.type = tokenType::close_paren});
       } else if (peek().value() == '~') {
         consume();
         tokens.push_back({.type = tokenType::end_line});
-        continue;
       } else if (peek().value() == '+') {
         consume();
         tokens.push_back({.type = tokenType::plus});
-        continue;
       } else if (peek().value() == '*') {
         consume();
         tokens.push_back({.type = tokenType::star});
-        continue;
       } else if (peek().value() == '/') {
         consume();
         tokens.push_back({.type = tokenType::div});
-        continue;
       } else if (peek().value() == '-') {
         consume();
         tokens.push_back({.type = tokenType::sub});
-        continue;
       } else if (std::isspace(peek().value())) {
         consume();
-        continue;
       } else {
         // no tokentype could be assigned.
         std::cerr << "No token type could be assigned..." << std::endl;
