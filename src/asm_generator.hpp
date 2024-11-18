@@ -16,7 +16,7 @@ public:
 
       void operator()(const nodeTermIntLit *term_int_lit) const {
         gen.mem_output << "  mov rax, " << term_int_lit->int_lit.value.value()
-                        << "\n";
+                       << "\n";
         gen.push("rax");
       }
       void operator()(const nodeTermIdent *term_ident) const {
@@ -33,8 +33,7 @@ public:
         }
         std::stringstream offset;
         offset << "QWORD [rsp + "
-               << (gen.mem_stack_size - (*iterator).stack_local - 1) * 8
-               << "]";
+               << (gen.mem_stack_size - (*iterator).stack_local - 1) * 8 << "]";
         // we know we have an already declared variable identifier.
         gen.push(offset.str());
       }
@@ -104,11 +103,11 @@ public:
   }
 
   void generateScope(const nodeScope *scope) {
-        begin_scope();
-        for (const nodeStmt *stmt : scope->stmts) {
-          generateSttmt(stmt);
-        }
-        end_scope();
+    begin_scope();
+    for (const nodeStmt *stmt : scope->stmts) {
+      generateSttmt(stmt);
+    }
+    end_scope();
   }
 
   void generateSttmt(const nodeStmt *stmt) {
@@ -136,12 +135,13 @@ public:
         // the variable is unused.
         // inserting the variable into the hashmap.
         gen.mem_vars.push_back({.name = stmt_catch->identifier.value.value(),
-                                 .stack_local = gen.mem_stack_size});
+                                .stack_local = gen.mem_stack_size});
         // putting the value we want at the top of the stack.
         gen.generateExpr(stmt_catch->expression);
       }
       void operator()(const nodeScope *scope) const {
-        gen.generateScope(scope);      }
+        gen.generateScope(scope);
+      }
       void operator()(const nodeStmtPerc *stmt_perc) const {
         gen.generateExpr(stmt_perc->expr);
         gen.pop("rax");

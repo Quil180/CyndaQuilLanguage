@@ -237,7 +237,8 @@ public:
       auto stmt = mem_allocator.alloc<nodeStmt>();
       stmt->variant = statement_catch;
       return stmt;
-    } else if (peek().has_value() && peek().value().type == tokenType::open_curly) {
+    } else if (peek().has_value() &&
+               peek().value().type == tokenType::open_curly) {
       if (auto scope = parse_scope()) {
         auto stmt = mem_allocator.alloc<nodeStmt>();
         stmt->variant = scope.value();
