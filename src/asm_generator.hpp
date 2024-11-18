@@ -34,7 +34,7 @@ public:
         std::stringstream offset;
         offset << "QWORD [rsp + "
                << (gen->mem_stack_size - (*iterator).stack_local - 1) * 8
-               << "]\n";
+               << "]";
         // we know we have an already declared variable identifier.
         gen->push(offset.str());
       }
