@@ -1,5 +1,7 @@
 CMakeFiles/ember.dir/src/main.cpp.o: \
  /home/yousef/Documents/CyndaQuil/src/main.cpp /usr/include/stdc-predef.h \
+ /home/yousef/Documents/CyndaQuil/src/asm_generator.hpp \
+ /home/yousef/Documents/CyndaQuil/src/parserizer.hpp \
  /home/yousef/Documents/CyndaQuil/src/tokener.hpp \
  /usr/include/c++/14.2.1/cctype \
  /usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/c++config.h \
@@ -149,9 +151,9 @@ CMakeFiles/ember.dir/src/main.cpp.o: \
  /usr/include/c++/14.2.1/bits/stl_uninitialized.h \
  /usr/include/c++/14.2.1/bits/stl_vector.h \
  /usr/include/c++/14.2.1/bits/stl_bvector.h \
- /usr/include/c++/14.2.1/bits/vector.tcc /usr/include/c++/14.2.1/fstream \
+ /usr/include/c++/14.2.1/bits/vector.tcc /usr/include/c++/14.2.1/sstream \
+ /usr/include/c++/14.2.1/bits/sstream.tcc /usr/include/c++/14.2.1/fstream \
  /usr/include/c++/14.2.1/bits/codecvt.h \
  /usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/basic_file.h \
  /usr/include/c++/14.2.1/x86_64-pc-linux-gnu/bits/c++io.h \
- /usr/include/c++/14.2.1/bits/fstream.tcc /usr/include/c++/14.2.1/sstream \
- /usr/include/c++/14.2.1/bits/sstream.tcc
+ /usr/include/c++/14.2.1/bits/fstream.tcc

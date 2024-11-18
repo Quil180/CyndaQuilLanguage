@@ -11,12 +11,14 @@ enum class tokenType { run, int_lit, end_line };
 
 struct Token {
   tokenType type;
-  std::optional<std::string> value;
+  std::optional<std::string> value{};
 };
 
 class Tokenizer {
 public:
-  inline explicit Tokenizer(const std::string source) : mem_source(std::move(source)) {}
+  inline explicit Tokenizer(const std::string source)
+      : mem_source(std::move(source)) {}
+
   inline std::vector<Token> tokenize() {
     std::vector<Token> tokens;
     std::string buffer;
@@ -55,6 +57,7 @@ public:
         continue;
       } else if (std::isspace(peak().value())) {
         consume();
+        continue;
       } else {
         // no tokentype could be assigned.
         std::cerr << "No token type could be assigned..." << std::endl;
@@ -68,12 +71,12 @@ public:
 private:
   // variables.
   const std::string mem_source; // the source code given to the tokenizer.
-  int mem_index = 0;                // current index the tokenizer is at.
+  size_t mem_index = 0;         // current index the tokenizer is at.
 
   // methods.
   // nodiscard will tell us if there is no return value (aka something went
   // wrong.)
-  [[nodiscard]] std::optional<char>
+  [[nodiscard]] inline std::optional<char>
   peak(int ahead = 1) const { // const as it shouldnt edit anything.
     if (mem_index + ahead > mem_source.length()) {
       return {};
@@ -82,5 +85,5 @@ private:
     }
   }
 
-  char consume() { return mem_source.at(mem_index++); }
+  inline char consume() { return mem_source.at(mem_index++); }
 };
