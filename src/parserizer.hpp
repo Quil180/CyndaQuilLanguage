@@ -3,8 +3,6 @@
 #include "fightingArena.hpp"
 #include "tokener.hpp"
 #include <cassert>
-#include <cstdlib>
-#include <optional>
 #include <ostream>
 #include <variant>
 

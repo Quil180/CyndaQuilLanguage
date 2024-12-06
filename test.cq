@@ -1,7 +1,0 @@
-catch ( 10 - 2 * 3 ) / 2 as x~
-catch 1 as y~
-perchance y - 1 {
-  run 69~
-}
-run 1~
-
