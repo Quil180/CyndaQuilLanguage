@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/ember.dir/link.d"
   "CMakeFiles/ember.dir/src/main.cpp.o"
   "CMakeFiles/ember.dir/src/main.cpp.o.d"
   "ember"

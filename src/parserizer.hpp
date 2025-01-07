@@ -286,7 +286,7 @@ private:
   ArenaAllocator mem_allocator;
 
   [[nodiscard]] inline std::optional<Token>
-  peek(int offset = 0) const { // const as it shouldnt edit anything.
+  peek(size_t offset = 0) const { // const as it shouldnt edit anything.
     if (mem_index + offset >= mem_tokens.size()) {
       return {};
     } else {

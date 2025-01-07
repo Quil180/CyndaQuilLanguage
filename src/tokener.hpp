@@ -136,7 +136,7 @@ private:
   // nodiscard will tell us if there is no return value (aka something went
   // wrong.)
   [[nodiscard]] inline std::optional<char>
-  peek(int offset = 0) const { // const as it shouldnt edit anything.
+  peek(size_t offset = 0) const { // const as it shouldnt edit anything.
     if (mem_index + offset >= mem_source.length()) {
       return {};
     } else {

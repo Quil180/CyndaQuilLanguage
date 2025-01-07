@@ -185,7 +185,7 @@ private:
     size_t pop_cnt = mem_vars.size() - mem_scopes.back();
     mem_output << "  add rsp, " << pop_cnt * 8 << "\n";
     mem_stack_size -= pop_cnt;
-    for (int i = 0; i < pop_cnt; i++) {
+    for (size_t i = 0; i < pop_cnt; i++) {
       mem_vars.pop_back(); // get rid of all the vars in the scope
     }
     mem_scopes.pop_back(); // get rid of the scop we just ended

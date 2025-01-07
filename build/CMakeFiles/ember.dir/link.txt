@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/ember.dir/src/main.cpp.o -o ember
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/ember.dir/link.d CMakeFiles/ember.dir/src/main.cpp.o -o ember
