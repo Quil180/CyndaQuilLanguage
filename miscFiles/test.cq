@@ -1,5 +1,0 @@
-catch 2 as x~
-perchance (x - 2) {
-  run 52~
-}
-run 1~
