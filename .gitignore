@@ -1,4 +1,3 @@
 build
-build
-documents
-miscFiles
+documents/grammar.aux
+documents/grammar.log

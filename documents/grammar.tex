@@ -1,0 +1,39 @@
+\documentclass[12pt, letterpaper]{article}
+
+\usepackage{titling}
+\usepackage{amsmath}
+
+\setlength{\droptitle}{-50mm}
+\title{CyndaQuil Grammar Sheet}
+\author{Yousef Alaa Awad}
+
+
+\begin{document}
+\maketitle
+\begin{align}
+  [\text{Program}] &\to [\text{Statement}]^* \\
+  [\text{Statement}] &\to \begin{cases}
+    run\ [\text{Expression}]\sim \\
+    catch\  [\text{Expression}]\ as\ \text{identifier}\sim \\
+    \{[\text{Statement}]^*\} \\
+    perchance\ [\text{Expression}]\ [\text{Scope}] \\
+    [\text{Scope}] \\
+  \end{cases} \\
+  [\text{Scope}] &\to [\text{Statement}]^* \\
+  [\text{Expression}]&\to \begin{cases}
+    [\text{Term}] \\
+    [\text{Binary Expression}] \\
+  \end{cases} \\
+  [\text{Binary Expression}] &\to \begin{cases}
+    [\text{Expression}] * [\text{Expression}] & \text{precedence = 1}\\
+    [\text{Expression}] \div [\text{Expression}] & \text{precedence = 1}\\
+    [\text{Expression}] + [\text{Expression}] &  \text{precedence = 0}\\
+    [\text{Expression}] - [\text{Expression}] &  \text{precedence = 0}\\
+  \end{cases} \\
+  [\text{Term}] &\to \begin{cases}
+  \text{integer\_literal} \\
+  \text{identifier} \\
+    ([\text{Expression}])
+  \end{cases}
+\end{align}
+\end{document}
